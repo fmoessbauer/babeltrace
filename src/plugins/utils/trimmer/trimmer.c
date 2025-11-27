@@ -445,13 +445,9 @@ int set_bound_from_param(struct trimmer_comp *trimmer_comp,
 
 	if (bt_value_is_signed_integer(param)) {
 		int64_t value = bt_value_integer_signed_get(param);
-
-		/*
-		 * Just convert it to a temporary string to handle
-		 * everything the same way.
-		 */
-		snprintf(tmp_arg, sizeof(tmp_arg), "%" PRId64, value);
-		arg = tmp_arg;
+		bound->ns_from_origin = value;
+		bound->is_set = true;
+		return 0;
 	} else {
 		BT_ASSERT(bt_value_is_string(param));
 		arg = bt_value_string_get(param);
