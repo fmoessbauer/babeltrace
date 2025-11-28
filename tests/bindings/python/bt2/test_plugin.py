@@ -99,7 +99,7 @@ class PluginTestCase(unittest.TestCase):
     def test_version(self):
         self.assertIsNotNone(self._plugin.version)
         self.assertEqual(self._plugin.version.major, 2)
-        self.assertEqual(self._plugin.version.minor, 0)
+        self.assertEqual(self._plugin.version.minor, 1)
         self.assertEqual(self._plugin.version.patch, 0)
         self.assertIsNone(self._plugin.version.extra)
 
