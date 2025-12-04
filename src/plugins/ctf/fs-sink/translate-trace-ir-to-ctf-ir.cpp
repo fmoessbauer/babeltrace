@@ -40,7 +40,8 @@ struct TraceIrToCtfIrCtx
 {
     explicit TraceIrToCtfIrCtx(struct fs_sink_comp *fs_sink) :
         logger {fs_sink->logger, "PLUGIN/SINK.CTF.FS/TRANSLATE-TRACE-IR-TO-CTF-IR"},
-        ctf_version {fs_sink->ctf_version}
+        ctf_version {fs_sink->ctf_version},
+        create_lttng_index {fs_sink->create_lttng_index}
     {
     }
 
@@ -65,6 +66,14 @@ struct TraceIrToCtfIrCtx
      * CTF 1.8 implies MIP 0 and CTF 2 implies MIP 1.
      */
     unsigned int ctf_version;
+
+    /*
+     * LTTng index is created for this trace.
+     *
+     * In case an index is created, some package context fields must
+     * not be escaped.
+     */
+    bool create_lttng_index;
 };
 
 } /* namespace sink */
@@ -182,7 +191,13 @@ static inline int cur_path_stack_push(ctf::sink::TraceIrToCtfIrCtx *ctx, const c
 
     if (name) {
         if (ctx->ctf_version == 1) {
-            if (force_protect_name) {
+            if (ctx->create_lttng_index && ctx->cur_scope == BT_FIELD_PATH_SCOPE_PACKET_CONTEXT &&
+                strcmp(name, "cpu_id") == 0) {
+                BT_CPPLOGD_SPEC(
+                    ctx->logger,
+                    "Not escaping the packet.context \"{}\" field, as this is needed as-is by trace-compass",
+                    name);
+            } else if (force_protect_name) {
                 g_string_assign(field_path_elem->name, "_");
             }
 
